@@ -25,7 +25,8 @@ T.Add(add_file[ij-1]);
 Int_t nEvents = T.GetEntries();
 std::cout<<"Number of entries  "<<nEvents<<std::endl;
 Double_t weight = 1./nEvents;
-TFile f("DSConfig0Shield_ep_disk_28.root","RECREATE");
+//TFile f("/lustre19/expphy/volatile/halla/parity/chandan/sim_out/DSConfig0Shield_ep/DSConfig0Shield_ep_disk_28.root","RECREATE");
+TFile f("DSDiskDet.root","RECREATE");
 set_plot_style();
 
 std::map<TString,TH2D*> h_d_xy;//d==disk
@@ -37,13 +38,13 @@ TString part,part1,part2;
 const Int_t nEnergy=5;
 //0:Total; 1:hit.p<1; 2: hit.p>=1 && hit.p<10;  3: hit.p>=10 && hit.p<100; 4: hit.p>=100;
 const Int_t nParticle=5;
-const Int_t nDet=8;
+const Int_t nDet=11;
 const Int_t nTDet=1;
 
 string sParticle[nParticle] = {"All","electron","positron","photon","neutron"};
 std::map<int,string> snParticle  {{11,"electron"},{-11,"positron"},{22,"photon"},{2112,"neutron"}};
-std::map<int,string> snDet  {{63,"afterCol4"},{64,"beforeCoil1"},{65,"afterCoil1"},{66,"afterCoil2"},{67,"afterCoil3"},{68,"beforeCollar"},{69,"driftRegion"},{28,"maindet"}};
-string sDet[nDet] = {"afterCol4","beforeCoil1","afterCoil1","afterCoil2","afterCoil3","beforeCollar","driftRegion","maindet"};
+std::map<int,string> snDet  {{63,"afterCol4"},{64,"beforeCoil1"},{65,"afterCoil1"},{66,"afterCoil2"},{72,"beforeLintel"},{67,"afterCoil3"},{73,"At13M"},{74,"At14M"},{68,"beforeCollar"},{69,"driftRegion"},{28,"maindet"}};
+string sDet[nDet] = {"afterCol4","beforeCoil1","afterCoil1","afterCoil2","beforeLintel","afterCoil3","At13M","At14M","beforeCollar","driftRegion","maindet"};
 string sTDet[nTDet] = {"cylinder"};
 std::map<int,string> TDet  {{57,"cylinder"}};
 string sEnergy[nEnergy] = {"Total", "p<1", "p>=1 && p<10", "p>=10 && p<100","p>=100"};
@@ -54,10 +55,28 @@ for(Int_t k=0;k<nDet;k++){
   if(i==0){//this is to get total energy deposition from all particles
   part=Form("h_%s",sDet[k].c_str());
   //std::cout<<"Test inside defination loop:i==0  "<<part<<std::endl;
+  if(k<=3)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s on %s",sParticle[i].c_str(),sDet[k].c_str()),200,-50, 50, 200,-50,50);
+  else if(k>=4 && k<=7)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s on %s",sParticle[i].c_str(),sDet[k].c_str()),600,-150, 150, 600,-150,150);
+  else if(k==8)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s on %s",sParticle[i].c_str(),sDet[k].c_str()),1400,-700, 700, 1400,-700,700);
+  else if(k==9)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s on %s",sParticle[i].c_str(),sDet[k].c_str()),2000,-1000, 1000, 2000,-1000,1000);
+  if(k==10)
   h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s on %s",sParticle[i].c_str(),sDet[k].c_str()),2400,-1200, 1200, 2400,-1200,1200);
   }
   for(int j=0;j<nEnergy && i>0;j++){
   part=Form("h_%s_%s_E%d",sDet[k].c_str(),sParticle[i].c_str(),j);
+  if(k<=3)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s %s for %s",sEnergy[j].c_str(),sParticle[i].c_str(),sDet[k].c_str()),200,-50, 50, 200,-50,50);
+  else if(k>=4 && k<=7)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s %s for %s",sEnergy[j].c_str(),sParticle[i].c_str(),sDet[k].c_str()),600,-150, 150, 600,-150,150);
+  else if(k==8)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s %s for %s",sEnergy[j].c_str(),sParticle[i].c_str(),sDet[k].c_str()),1400,-700, 700, 1400,-700,700);
+  else if(k==9)
+  h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s %s for %s",sEnergy[j].c_str(),sParticle[i].c_str(),sDet[k].c_str()),2000,-1000, 1000, 2000,-1000,1000);
+  else if(k==10)
   h_d_xy[part] = new TH2D(part+"_d_xy",Form("%s %s for %s",sEnergy[j].c_str(),sParticle[i].c_str(),sDet[k].c_str()),2400,-1200, 1200, 2400,-1200,1200);
   }
   part1=Form("h_%s_%s",sDet[k].c_str(),sParticle[i].c_str());
@@ -124,10 +143,10 @@ for(size_t j=0;j<nEvents;j++){
     Int_t pid = hit.pid;
    // std::cout<<"Before Event "<<j<<" hit "<<i<<" det "<<det<<" pid "<<pid<<" r "<<hit.r<<" trid "<<hit.trid<<" mtrid  "<<hit.mtrid<<std::endl;
     //if(((det>=63 && det<=69) || det==28 || (det>=57 && det<=62)) && (abs(pid)==11 || abs(pid)==2112 || pid==22)){
-    if(((det>=57 && det<=69) || det==28 ) && (abs(pid)==11) && (hit.trid==1 && hit.mtrid==0) && hit.pz>0){
+    if(((det>=57 && det<=69) || det==28 || (det>=72 &&det<=74)) && (abs(pid)==11) && (hit.trid==1 && hit.mtrid==0) && hit.pz>0){
 //std::cout<<"Hi Event "<<j<<" hit "<<i<<" det "<<det<<" pid "<<pid<<" r "<<hit.r<<" trid "<<hit.trid<<" mtrid  "<<hit.mtrid<<std::endl;
         Int_t hitz = hit.z;
-	if((det>=63 && det<=69) || det==28){
+	if((det>=63 && det<=69) || det==28 || (det>=72 && det<=74)){
 	//std::cout<<"Event "<<j<<"  filled disk dets Total"<<std::endl;
         part=Form("h_%s",snDet[det].c_str());
 	h_d_xy[part]->Fill(hit.y,hit.x,(fRate)*weight);}
@@ -148,7 +167,7 @@ for(size_t j=0;j<nEvents;j++){
           else if (k==3) {ene_cut=hit.p>=10 && hit.p<100;}
           else {ene_cut=hit.p>=100;}
 	     if(ene_cut){
-		if((det>=63 && det<=69)||det==28){
+		if((det>=63 && det<=69)||det==28 || (det>=72 && det<=74)){
         	part=Form("h_%s_%s_E%d",snDet[det].c_str(),snParticle[pid].c_str(),k);
 //		std::cout<<"Event  "<<j<<"  hit.det  "<<det<<"  pid   "<<pid<<"  p  "<<hit.p<<"  r  "<<hit.r<<std::endl;
 		//std::cout<<"Event "<<j<<"  Hit  "<<i<<" Energy "<<k<<" part inside hit loop  "<<part<<std::endl;
@@ -166,7 +185,7 @@ for(size_t j=0;j<nEvents;j++){
 		}
 	     }
    	}
-	if((det>=63 && det<=69)||det==28){
+	if((det>=63 && det<=69)||det==28 || (det>=72 && det<=74)){
         part1=Form("h_%s_%s",snDet[det].c_str(),snParticle[pid].c_str());
 	h_d_e[part1]->Fill(hit.edep,(fRate)*weight);}
 	if(det>=57 && det<=62){
