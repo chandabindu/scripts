@@ -16,7 +16,7 @@ void plotCoil()
 gROOT->Reset();
    //TChanin *T = new TChain("T");
    //T->Add("outfile2.root");
-   TFile *f = new TFile("outfileEdep_MergedExtended1.root");
+   TFile *f = new TFile("outfile10.root");
    gStyle->SetOptStat(0);
    gStyle->SetStatH(0.3);
    gStyle->SetStatW(0.3);
@@ -28,25 +28,22 @@ gROOT->Reset();
 
 
    const int nEnergy = 5;
-   const int nParticle = 5;
+   const int nParticle = 4;
    const int nDet = 14;
-   TH2F *h = new TH2F("h","h",120,800,3200,600,0,300);
-   TH2F *h1 = new TH2F("h1","h1",120,800,3200,5,25,50);
-   TH2F *h2 = new TH2F("h2","h2",120,800,3200,380,-190,190);
+   TH2F *h = new TH2F("h","h",480,800,3200,600,0,300);
+   TH2F *h1 = new TH2F("h1","h1",480,800,3200,5,25,50);
+   TH2F *h2 = new TH2F("h2","h2",480,800,3200,380,-190,190);
    TH1F *h4 = new TH1F("h4","h4",110,0,11000);
    //h->GetZaxis()->SetRangeUser(0,0.01);
    //h->SetMinimum(0);
    //h->SetMinimum(0.1);
-  string out = "outfile_MergedExtended1.pdf";
-  ofstream fh_out;
-  fh_out.open("outfile_MergedExtended1.txt");
-  
+  string out = "outfile.pdf";
 
   TCanvas c1;
 
   c1.Print(Form("%s[",out.c_str()),"pdf");
   //c1.Divide(1,7);
-  string sParticle[nParticle] = {"All","electron","positron","photon","neutron"};
+  string sParticle[nParticle] = {"electron","positron","photon","neutron"};
   string Ecut[nEnergy]={"Total","p<1","p>=1 && p<10","p>=10 && p<100","p>=100"};
   string sDet[nDet] = {"coil1","coil2","coil3","coil4","coil5","coil6","coil7","epoxy1","epoxy2","epoxy3","epoxy4","epoxy5","epoxy6","epoxy7"};
 
@@ -54,36 +51,9 @@ gROOT->Reset();
 
   for(int ij=0;ij<nDet;ij++){
 	for(int ip=0;ip<nParticle;ip++){
-          if(ip==0){
-         c1.cd(1);
-       	 //setcolor();
-         h=(TH2F*)f->Get(Form("h_%s_u_rz",sDet[ij].c_str()));
-         h->GetZaxis()->SetTitleOffset(0.5);
-         h->SetTitle(Form("Total Energy on %s",sDet[ij].c_str()));
-         h->SetTitleSize(0.05);
-	 fh_out<<"Det "<<Form("%s",sDet[ij].c_str())<<" Max energy "<<h->GetMaximum()<<"Z for Max. "<<h->GetXaxis()->GetBinCenter(h->GetMaximumBin())<<std::endl;
-         h->Draw("colz");
-         c1.Print(out.c_str(),"pdf");
-         if(ij>=7)
-         {
-
-	     c1.cd(1);
-       	     //setcolor();
-             h=(TH2F*)f->Get(Form("h_%s_ub_rz",sDet[ij].c_str()));
-             h->GetZaxis()->SetTitleOffset(0.5);
-             h->SetTitle(Form("Total under belly Epoxy on %s",sDet[ij].c_str()));
-             h->SetTitleSize(0.05);
-	     fh_out<<"Det "<<Form("%s",sDet[ij].c_str())<<" Max energy "<<h->GetMaximum()<<"Z for Max. "<<h->GetXaxis()->GetBinCenter(h->GetMaximumBin())<<std::endl;
-             h->Draw("colz");
-             c1.Print(out.c_str(),"pdf");
-
-         } 
-
-     	}
-             
-		for(int ik=0;ik<nEnergy && ip>0;ik++){
+		for(int ik=0;ik<nEnergy;ik++){
 			c1.cd(1);
-			//setcolor();
+			setcolor();
 			h=(TH2F*)f->Get(Form("h_%s_%s_E%d_u_rz",sDet[ij].c_str(),sParticle[ip].c_str(),ik));
 			h->GetZaxis()->SetTitleOffset(0.5);
 			h->SetTitle(Form("%s %s on %s",Ecut[ik].c_str(),sParticle[ip].c_str(),sDet[ij].c_str()));
@@ -93,13 +63,12 @@ gROOT->Reset();
 			}
 	}
    }
-   fh_out.close();
 
   for(int ij=7;ij<nDet;ij++){
 	for(int ip=0;ip<nParticle;ip++){
-		for(int ik=0;ik<nEnergy && ip>0;ik++){
+		for(int ik=0;ik<nEnergy;ik++){
 			c1.cd(1);
-			//setcolor();
+			setcolor();
 			h1=(TH2F*)f->Get(Form("h_%s_%s_E%d_ub_rz",sDet[ij].c_str(),sParticle[ip].c_str(),ik));
 			h1->GetZaxis()->SetTitleOffset(0.5);
 			h1->SetTitle(Form("Under Belly:%s %s on %s",Ecut[ik].c_str(),sParticle[ip].c_str(),sDet[ij].c_str()));
@@ -111,9 +80,9 @@ gROOT->Reset();
    }
 
   for(int ip=0;ip<nParticle;ip++){
-	for(int ik=0;ik<nEnergy && ip>0;ik++){
+	for(int ik=0;ik<nEnergy;ik++){
 		c1.cd(1);
-		//setcolor();
+		setcolor();
 		h2=(TH2F*)f->Get(Form("h_%s_E%d_ub_phiz",sParticle[ip].c_str(),ik));
 		h2->GetZaxis()->SetTitleOffset(0.5);
 		h2->SetTitle(Form("Under Belly:%s on %s",Ecut[ik].c_str(),sParticle[ip].c_str()));
@@ -123,9 +92,9 @@ gROOT->Reset();
 		}
   }
   for(int ij=0;ij<nDet;ij++){
-	for(int ip=1;ip<nParticle;ip++){
+	for(int ip=0;ip<nParticle;ip++){
 		c1.cd(1);
-	///	setcolor();
+		setcolor();
 		h4=(TH1F*)f->Get(Form("h_%s_%s_u_e",sDet[ij].c_str(),sParticle[ip].c_str()));
 		h4->SetTitle(Form("%s on %s",sParticle[ip].c_str(),sDet[ij].c_str()));
 		h4->SetTitleSize(0.05);
@@ -135,9 +104,9 @@ gROOT->Reset();
 	}
    
   for(int ij=7;ij<nDet;ij++){
-	for(int ip=1;ip<nParticle;ip++){
+	for(int ip=0;ip<nParticle;ip++){
 		c1.cd(1);
-	//	setcolor();
+		setcolor();
 		h4=(TH1F*)f->Get(Form("h_%s_%s_ub_e",sDet[ij].c_str(),sParticle[ip].c_str()));
 		h4->SetTitle(Form("%s on %s",sParticle[ip].c_str(),sDet[ij].c_str()));
 		h4->SetTitleSize(0.05);
