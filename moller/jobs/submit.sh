@@ -1,11 +1,11 @@
 #!/bin/bash
 
 
-rm command100
+rm command1
 
-touch command100
+touch command1
 
 # rm *.out
-python submit.py 1 11 >> command100
-sh command100
+python submit.py 1 11 >> command1
+sh command1
 sleep 10
